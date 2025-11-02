@@ -89,9 +89,12 @@ ALLOWED_ORIGINS=https://your-app-name.onrender.com,https://custom-domain.com
 - هذا طبيعي في الخطة المجانية
 
 ### 2. قاعدة البيانات:
-- SQLite سيعمل بشكل جيد للبداية
-- البيانات تُحفظ في `/database/inventory.db`
-- للعملاء الكبار: أضف PostgreSQL (مجاني في Render)
+- ⚠️ **مهم جداً:** SQLite على Render Free Tier - البيانات ستُفقد عند كل إعادة تشغيل!
+- ⚠️ **Critical:** SQLite on Render Free Tier - data will be lost on every restart!
+- ملفات SQLite تُحفظ في filesystem ephemeral (مؤقت)
+- SQLite files are stored in ephemeral filesystem
+- **الحل:** استخدم PostgreSQL (مجاني في Render) للإنتاج
+- **Solution:** Use PostgreSQL (free on Render) for production
 
 ### 3. النسخ الاحتياطي:
 - قم بتنزيل قاعدة البيانات دورياً

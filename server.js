@@ -176,7 +176,7 @@ app.use((err, req, res, next) => {
 
 // بدء الخادم
 // Start server
-app.listen(PORT, () => {
+app.listen(PORT, '0.0.0.0', () => {
     console.log('🚀 نظام إدارة المخزون المحمول / Mobile Inventory System');
     console.log(`✅ الخادم يعمل على المنفذ / Server running on port: ${PORT}`);
     console.log(`🌐 الرابط المحلي / Local URL: http://localhost:${PORT}`);
