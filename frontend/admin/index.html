@@ -1,0 +1,1179 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لوحة المدير | Admin Panel</title>
+    
+    <!-- Bootstrap CSS with RTL support -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.rtl.min.css" rel="stylesheet">
+    
+    <!-- Font Awesome Icons -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    
+    <!-- Google Fonts - Arabic Support -->
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Chart.js for Analytics -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --success-color: #27ae60;
+            --warning-color: #f39c12;
+            --danger-color: #e74c3c;
+            --light-bg: #ecf0f1;
+            --dark-text: #2c3e50;
+            --sidebar-width: 280px;
+        }
+
+        * {
+            font-family: 'Cairo', sans-serif;
+        }
+
+        body {
+            background: var(--light-bg);
+            overflow-x: hidden;
+        }
+
+        .sidebar {
+            position: fixed;
+            top: 0;
+            right: 0;
+            height: 100vh;
+            width: var(--sidebar-width);
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            color: white;
+            z-index: 1000;
+            transition: transform 0.3s ease;
+            overflow-y: auto;
+        }
+
+        .sidebar.collapsed {
+            transform: translateX(100%);
+        }
+
+        .sidebar-header {
+            padding: 20px;
+            text-align: center;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .sidebar-header h4 {
+            margin: 0;
+            font-weight: 700;
+        }
+
+        .sidebar-menu {
+            padding: 20px 0;
+        }
+
+        .menu-item {
+            display: block;
+            padding: 15px 25px;
+            color: white;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border: none;
+            background: none;
+            width: 100%;
+            text-align: right;
+        }
+
+        .menu-item:hover, .menu-item.active {
+            background: rgba(255,255,255,0.1);
+            color: white;
+            padding-right: 35px;
+        }
+
+        .menu-item i {
+            margin-left: 10px;
+            width: 20px;
+        }
+
+        .main-content {
+            margin-right: var(--sidebar-width);
+            min-height: 100vh;
+            transition: margin-right 0.3s ease;
+        }
+
+        .main-content.expanded {
+            margin-right: 0;
+        }
+
+        .top-navbar {
+            background: white;
+            padding: 15px 25px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .content-area {
+            padding: 25px;
+        }
+
+        .stats-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+            margin-bottom: 20px;
+            transition: transform 0.3s ease;
+        }
+
+        .stats-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .stats-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: white;
+            margin-bottom: 15px;
+        }
+
+        .stats-icon.primary { background: var(--primary-color); }
+        .stats-icon.success { background: var(--success-color); }
+        .stats-icon.warning { background: var(--warning-color); }
+        .stats-icon.danger { background: var(--danger-color); }
+
+        .stats-number {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--dark-text);
+            margin-bottom: 5px;
+        }
+
+        .stats-label {
+            color: #7f8c8d;
+            font-size: 0.9rem;
+        }
+
+        .card {
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+            margin-bottom: 20px;
+        }
+
+        .card-header {
+            background: white;
+            border-bottom: 1px solid #e9ecef;
+            border-radius: 15px 15px 0 0 !important;
+            padding: 20px 25px;
+        }
+
+        .card-header h5 {
+            margin: 0;
+            font-weight: 600;
+            color: var(--dark-text);
+        }
+
+        .card-body {
+            padding: 25px;
+        }
+
+        .table {
+            margin-bottom: 0;
+        }
+
+        .table th {
+            border-top: none;
+            font-weight: 600;
+            color: var(--dark-text);
+            background: var(--light-bg);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            border: none;
+            border-radius: 10px;
+            padding: 10px 20px;
+            font-weight: 600;
+        }
+
+        .btn-success {
+            background: var(--success-color);
+            border: none;
+            border-radius: 10px;
+            padding: 10px 20px;
+            font-weight: 600;
+        }
+
+        .btn-danger {
+            background: var(--danger-color);
+            border: none;
+            border-radius: 10px;
+            padding: 10px 20px;
+            font-weight: 600;
+        }
+
+        .btn-warning {
+            background: var(--warning-color);
+            border: none;
+            border-radius: 10px;
+            padding: 10px 20px;
+            font-weight: 600;
+        }
+
+        .form-control, .form-select {
+            border-radius: 10px;
+            border: 2px solid #e9ecef;
+            padding: 12px 15px;
+        }
+
+        .form-control:focus, .form-select:focus {
+            border-color: var(--secondary-color);
+            box-shadow: 0 0 0 0.2rem rgba(52, 152, 219, 0.25);
+        }
+
+        .modal-content {
+            border-radius: 15px;
+            border: none;
+        }
+
+        .modal-header {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            color: white;
+            border-radius: 15px 15px 0 0;
+        }
+
+        .badge {
+            padding: 8px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+        }
+
+        .badge.bg-success { background: var(--success-color) !important; }
+        .badge.bg-warning { background: var(--warning-color) !important; }
+        .badge.bg-danger { background: var(--danger-color) !important; }
+
+        .loading-spinner {
+            display: none;
+            text-align: center;
+            padding: 40px;
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            right: 20px;
+            z-index: 1050;
+            display: none;
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(100%);
+            }
+            
+            .sidebar.show {
+                transform: translateX(0);
+            }
+            
+            .main-content {
+                margin-right: 0;
+            }
+            
+            .content-area {
+                padding: 15px;
+            }
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .chart-container {
+            position: relative;
+            height: 300px;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <i class="fas fa-user-shield fa-2x mb-2"></i>
+            <h4>لوحة المدير</h4>
+            <small>Admin Panel</small>
+        </div>
+        
+        <div class="sidebar-menu">
+            <a href="#" class="menu-item active" onclick="showSection('dashboard')">
+                <i class="fas fa-tachometer-alt"></i>
+                لوحة التحكم / Dashboard
+            </a>
+            <a href="#" class="menu-item" onclick="showSection('operations')">
+                <i class="fas fa-tasks"></i>
+                العمليات / Operations
+            </a>
+            <a href="#" class="menu-item" onclick="showSection('devices')">
+                <i class="fas fa-box"></i>
+                المنتجات / Products
+            </a>
+            <a href="#" class="menu-item" onclick="showSection('users')">
+                <i class="fas fa-users"></i>
+                المستخدمين / Users
+            </a>
+            <a href="#" class="menu-item" onclick="showSection('reports')">
+                <i class="fas fa-chart-bar"></i>
+                التقارير / Reports
+            </a>
+            <a href="#" class="menu-item" onclick="showSection('activity')">
+                <i class="fas fa-history"></i>
+                سجل النشاطات / Activity Log
+            </a>
+            <hr style="border-color: rgba(255,255,255,0.1);">
+            <a href="#" class="menu-item" onclick="logout()">
+                <i class="fas fa-sign-out-alt"></i>
+                تسجيل الخروج / Logout
+            </a>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content" id="mainContent">
+        <!-- Top Navbar -->
+        <div class="top-navbar">
+            <div class="d-flex align-items-center flex-grow-1">
+                <button class="btn btn-link d-md-none" onclick="toggleSidebar()">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <h5 class="mb-0 me-3" id="pageTitle">لوحة التحكم / Dashboard</h5>
+                <div class="flex-grow-1 position-relative" style="max-width: 400px;">
+                    <div class="input-group">
+                        <input type="text" class="form-control" id="globalProductSearch" 
+                               placeholder="البحث عن منتج / Search product">
+                        <button class="btn btn-primary" type="button" onclick="performGlobalProductSearch()">
+                            <i class="fas fa-search"></i>
+                        </button>
+                    </div>
+                    <div id="globalSearchResults" class="position-absolute bg-white border rounded shadow-lg mt-1 p-3" 
+                         style="display: none; z-index: 1000; max-height: 400px; overflow-y: auto; width: 100%; max-width: 600px; left: 0;"></div>
+                </div>
+            </div>
+            <div class="d-flex align-items-center">
+                <div class="dropdown">
+                    <button class="btn btn-link dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                        <i class="fas fa-user me-2"></i>
+                        <span id="adminName">المدير</span>
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="#" onclick="changePassword()">
+                            <i class="fas fa-key me-2"></i>تغيير كلمة المرور
+                        </a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item" href="#" onclick="logout()">
+                            <i class="fas fa-sign-out-alt me-2"></i>تسجيل الخروج
+                        </a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Content Area -->
+        <div class="content-area">
+            <!-- Login Section -->
+            <div id="loginSection" class="row justify-content-center hidden">
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header text-center">
+                            <h5><i class="fas fa-shield-alt me-2"></i>دخول المدير | Admin Login</h5>
+                        </div>
+                        <div class="card-body">
+                            <form id="loginForm">
+                                <div class="mb-3">
+                                    <label class="form-label">اسم المستخدم / Username</label>
+                                    <input type="text" class="form-control" id="username" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">كلمة المرور / Password</label>
+                                    <input type="password" class="form-control" id="password" required>
+                                </div>
+                                <button type="submit" class="btn btn-primary w-100">
+                                    <i class="fas fa-sign-in-alt me-2"></i>دخول / Login
+                                </button>
+                            </form>
+                            <div class="loading-spinner" id="loginLoading">
+                                <div class="spinner-border text-primary" role="status">
+                                    <span class="visually-hidden">جاري التحميل...</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Dashboard Section -->
+            <div id="dashboardSection" class="hidden">
+                <!-- Statistics Cards -->
+                <div class="row">
+                    <div class="col-lg-3 col-md-6">
+                        <div class="stats-card">
+                            <div class="stats-icon primary">
+                                <i class="fas fa-laptop"></i>
+                            </div>
+                            <div class="stats-number" id="totalDevices">0</div>
+                            <div class="stats-label">إجمالي المنتجات / Total Products</div>
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-md-6">
+                        <div class="stats-card">
+                            <div class="stats-icon success">
+                                <i class="fas fa-check-circle"></i>
+                            </div>
+                            <div class="stats-number" id="availableDevices">0</div>
+                            <div class="stats-label">المنتجات المتاحة / Available Products</div>
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-md-6">
+                        <div class="stats-card">
+                            <div class="stats-icon warning">
+                                <i class="fas fa-clock"></i>
+                            </div>
+                            <div class="stats-number" id="pendingOperations">0</div>
+                            <div class="stats-label">عمليات معلقة / Pending</div>
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-md-6">
+                        <div class="stats-card">
+                            <div class="stats-icon danger">
+                                <i class="fas fa-exclamation-triangle"></i>
+                            </div>
+                            <div class="stats-number" id="lowStockDevices">0</div>
+                            <div class="stats-label">منتجات منخفضة المخزون / Low Stock Products</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Charts -->
+                <div class="row">
+                    <div class="col-lg-8">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5><i class="fas fa-chart-line me-2"></i>العمليات اليومية / Daily Operations</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="chart-container">
+                                    <canvas id="dailyOperationsChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-4">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5><i class="fas fa-chart-pie me-2"></i>توزيع العمليات / Operations Distribution</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="chart-container">
+                                    <canvas id="operationsDistributionChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Operations -->
+                <div class="card">
+                    <div class="card-header">
+                        <h5><i class="fas fa-history me-2"></i>العمليات الأخيرة / Recent Operations</h5>
+                    </div>
+                    <div class="card-body">
+                        <div id="recentOperations">
+                            <div class="loading-spinner">
+                                <div class="spinner-border text-primary" role="status"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Operations Section -->
+            <div id="operationsSection" class="hidden">
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5><i class="fas fa-tasks me-2"></i>إدارة العمليات / Operations Management</h5>
+                        <div>
+                            <button class="btn btn-success btn-sm me-2" onclick="showManualStockModal('add')">
+                                <i class="fas fa-plus me-2"></i>إضافة مخزون / Add Stock
+                            </button>
+                            <button class="btn btn-danger btn-sm me-2" onclick="showManualStockModal('remove')">
+                                <i class="fas fa-minus me-2"></i>سحب مخزون / Remove Stock
+                            </button>
+                            <button class="btn btn-primary btn-sm" onclick="refreshOperations()">
+                                <i class="fas fa-sync-alt me-2"></i>تحديث / Refresh
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <!-- Filters -->
+                        <div class="row mb-3">
+                            <div class="col-md-3">
+                                <select class="form-select" id="operationStatusFilter">
+                                    <option value="">جميع الحالات / All Status</option>
+                                    <option value="pending">معلقة / Pending</option>
+                                    <option value="approved">موافق عليها / Approved</option>
+                                    <option value="rejected">مرفوضة / Rejected</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <select class="form-select" id="operationTypeFilter">
+                                    <option value="">جميع الأنواع / All Types</option>
+                                    <option value="add">إضافة / Add</option>
+                                    <option value="remove">سحب / Remove</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <input type="date" class="form-control" id="operationDateFilter">
+                            </div>
+                            <div class="col-md-3">
+                                <button class="btn btn-secondary w-100" onclick="filterOperations()">
+                                    <i class="fas fa-filter me-2"></i>تصفية / Filter
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Operations Table -->
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>الموظف / Employee</th>
+                                        <th>الجهاز / Device</th>
+                                        <th>النوع / Type</th>
+                                        <th>الكمية / Quantity</th>
+                                        <th>التاريخ / Date</th>
+                                        <th>الحالة / Status</th>
+                                        <th>الإجراءات / Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="operationsTableBody">
+                                    <tr>
+                                        <td colspan="7" class="text-center">
+                                            <div class="loading-spinner">
+                                                <div class="spinner-border text-primary" role="status"></div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Pagination -->
+                        <nav>
+                            <ul class="pagination justify-content-center" id="operationsPagination">
+                            </ul>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Other sections will be loaded dynamically -->
+            <div id="devicesSection" class="hidden"></div>
+            <div id="usersSection" class="hidden"></div>
+            <div id="reportsSection" class="hidden"></div>
+            <div id="activitySection" class="hidden"></div>
+        </div>
+    </div>
+
+    <!-- Manual Stock Operation Modal -->
+    <div class="modal fade" id="manualStockModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header" id="manualStockModalHeader">
+                    <h5 class="modal-title" id="manualStockModalTitle">
+                        <i class="fas fa-cog me-2"></i>
+                        عملية مخزون يدوي / Manual Stock Operation
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="manualStockForm">
+                        <div class="mb-3">
+                            <label class="form-label">البحث عن الجهاز / Search Device</label>
+                            <div class="input-group">
+                                <input type="text" class="form-control" id="manualStockBarcode" 
+                                       placeholder="أدخل الرمز الشريطي أو اسم الجهاز / Enter barcode or device name">
+                                <button type="button" class="btn btn-primary" onclick="searchDeviceForManualStock()">
+                                    <i class="fas fa-search"></i>
+                                </button>
+                            </div>
+                            <small class="text-muted">أو اختر من القائمة أدناه / Or select from list below</small>
+                        </div>
+                        <div class="mb-3" id="manualStockDeviceSelect" style="display: none;">
+                            <label class="form-label">اختر الجهاز / Select Device</label>
+                            <select class="form-select" id="manualStockDeviceId">
+                                <option value="">اختر جهاز / Select device</option>
+                            </select>
+                        </div>
+                        <div id="manualStockDeviceInfo" class="alert alert-info" style="display: none;">
+                            <strong id="manualStockDeviceName">-</strong><br>
+                            <small id="manualStockDeviceDetails">-</small>
+                        </div>
+                        <div id="manualStockAvailableInfo" class="alert alert-warning" style="display: none;">
+                            <i class="fas fa-info-circle me-2"></i>
+                            <strong>الكمية المتاحة / Available Quantity:</strong> <span id="manualStockAvailableQty">-</span>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">الكمية / Quantity</label>
+                            <input type="number" class="form-control" id="manualStockQuantity" 
+                                   min="1" value="1" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">السبب / Reason</label>
+                            <input type="text" class="form-control" id="manualStockReason" 
+                                   placeholder="سبب إضافة المخزون / Reason for adding stock">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">ملاحظات / Notes</label>
+                            <textarea class="form-control" id="manualStockNotes" rows="3" 
+                                      placeholder="ملاحظات إضافية / Additional notes"></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">الموقع / Location</label>
+                            <input type="text" class="form-control" id="manualStockLocation" 
+                                   placeholder="موقع المخزون / Stock location">
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="fas fa-times me-2"></i>إلغاء / Cancel
+                    </button>
+                    <button type="button" class="btn btn-success" id="manualStockSubmitBtn" onclick="submitManualStock()">
+                        <i class="fas fa-check me-2"></i>تأكيد / Confirm
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Product View Modal -->
+    <div class="modal fade" id="productViewModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header bg-info text-white">
+                    <h5 class="modal-title">
+                        <i class="fas fa-eye me-2"></i>عرض المنتج / View Product
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="fw-bold">الرمز الشريطي / Barcode:</label>
+                                <p id="viewBarcode" class="mb-0">-</p>
+                            </div>
+                            <div class="mb-3">
+                                <label class="fw-bold">اسم المنتج / Product Name:</label>
+                                <p id="viewDeviceName" class="mb-0">-</p>
+                            </div>
+                            <div class="mb-3">
+                                <label class="fw-bold">النوع / Type:</label>
+                                <p id="viewDeviceType" class="mb-0">-</p>
+                            </div>
+                            <div class="mb-3">
+                                <label class="fw-bold">الماركة / Brand:</label>
+                                <p id="viewBrand" class="mb-0">-</p>
+                            </div>
+                            <div class="mb-3">
+                                <label class="fw-bold">الموديل / Model:</label>
+                                <p id="viewModel" class="mb-0">-</p>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="fw-bold">الكمية الحالية / Current Quantity:</label>
+                                <p id="viewCurrentQuantity" class="mb-0">-</p>
+                            </div>
+                            <div class="mb-3">
+                                <label class="fw-bold">الكمية الدنيا / Minimum Quantity:</label>
+                                <p id="viewMinimumQuantity" class="mb-0">-</p>
+                            </div>
+                            <div class="mb-3">
+                                <label class="fw-bold">الحالة / Status:</label>
+                                <p id="viewStatus" class="mb-0">-</p>
+                            </div>
+                            <div class="mb-3">
+                                <label class="fw-bold">الموقع / Location:</label>
+                                <p id="viewLocation" class="mb-0">-</p>
+                            </div>
+                            <div class="mb-3">
+                                <label class="fw-bold">الوصف / Description:</label>
+                                <p id="viewDescription" class="mb-0">-</p>
+                            </div>
+                        </div>
+                    </div>
+                    <hr>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="fw-bold">تاريخ الشراء / Purchase Date:</label>
+                                <p id="viewPurchaseDate" class="mb-0">-</p>
+                            </div>
+                            <div class="mb-3">
+                                <label class="fw-bold">سعر الشراء / Purchase Price:</label>
+                                <p id="viewPurchasePrice" class="mb-0">-</p>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="fw-bold">انتهاء الضمان / Warranty Expiry:</label>
+                                <p id="viewWarrantyExpiry" class="mb-0">-</p>
+                            </div>
+                            <div class="mb-3">
+                                <label class="fw-bold">الرقم التسلسلي / Serial Number:</label>
+                                <p id="viewSerialNumber" class="mb-0">-</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="fas fa-times me-2"></i>إغلاق / Close
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Product Add Modal -->
+    <div class="modal fade" id="productAddModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header bg-success text-white">
+                    <h5 class="modal-title">
+                        <i class="fas fa-plus-circle me-2"></i>إضافة منتج جديد / Add New Product
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="productAddForm">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">الرمز الشريطي / Barcode <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" id="addBarcode" required>
+                                    <small class="text-muted">يجب أن يكون فريداً / Must be unique</small>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">اسم المنتج / Product Name <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" id="addDeviceName" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">النوع / Type <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" id="addDeviceType" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">الماركة / Brand</label>
+                                    <input type="text" class="form-control" id="addBrand">
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">الموديل / Model</label>
+                                    <input type="text" class="form-control" id="addModel">
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">الرقم التسلسلي / Serial Number</label>
+                                    <input type="text" class="form-control" id="addSerialNumber">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">الكمية الحالية / Current Quantity <span class="text-danger">*</span></label>
+                                    <input type="number" class="form-control" id="addCurrentQuantity" min="0" value="1" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">الكمية الدنيا / Minimum Quantity <span class="text-danger">*</span></label>
+                                    <input type="number" class="form-control" id="addMinimumQuantity" min="0" value="1" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">الحالة / Status <span class="text-danger">*</span></label>
+                                    <select class="form-select" id="addStatus" required>
+                                        <option value="available" selected>متاح / Available</option>
+                                        <option value="assigned">معين / Assigned</option>
+                                        <option value="maintenance">صيانة / Maintenance</option>
+                                        <option value="damaged">تالف / Damaged</option>
+                                        <option value="disposed">مستبعد / Disposed</option>
+                                    </select>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">الموقع / Location</label>
+                                    <input type="text" class="form-control" id="addLocation">
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">تاريخ الشراء / Purchase Date</label>
+                                    <input type="date" class="form-control" id="addPurchaseDate">
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">سعر الشراء / Purchase Price</label>
+                                    <input type="number" step="0.01" class="form-control" id="addPurchasePrice" min="0">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">انتهاء الضمان / Warranty Expiry</label>
+                                    <input type="date" class="form-control" id="addWarrantyExpiry">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">الوصف / Description</label>
+                            <textarea class="form-control" id="addDescription" rows="3"></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="fas fa-times me-2"></i>إلغاء / Cancel
+                    </button>
+                    <button type="button" class="btn btn-success" onclick="submitAddProduct()">
+                        <i class="fas fa-save me-2"></i>إضافة المنتج / Add Product
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Product Edit Modal -->
+    <div class="modal fade" id="productEditModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header bg-warning text-dark">
+                    <h5 class="modal-title">
+                        <i class="fas fa-edit me-2"></i>تعديل المنتج / Edit Product
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="productEditForm">
+                        <input type="hidden" id="editProductId">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">الرمز الشريطي / Barcode <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" id="editBarcode" required readonly>
+                                    <small class="text-muted">لا يمكن تغيير الرمز الشريطي / Barcode cannot be changed</small>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">اسم المنتج / Product Name <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" id="editDeviceName" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">النوع / Type <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" id="editDeviceType" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">الماركة / Brand</label>
+                                    <input type="text" class="form-control" id="editBrand">
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">الموديل / Model</label>
+                                    <input type="text" class="form-control" id="editModel">
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">الرقم التسلسلي / Serial Number</label>
+                                    <input type="text" class="form-control" id="editSerialNumber">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">الكمية الحالية / Current Quantity <span class="text-danger">*</span></label>
+                                    <input type="number" class="form-control" id="editCurrentQuantity" min="0" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">الكمية الدنيا / Minimum Quantity <span class="text-danger">*</span></label>
+                                    <input type="number" class="form-control" id="editMinimumQuantity" min="0" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">الحالة / Status <span class="text-danger">*</span></label>
+                                    <select class="form-select" id="editStatus" required>
+                                        <option value="available">متاح / Available</option>
+                                        <option value="assigned">معين / Assigned</option>
+                                        <option value="maintenance">صيانة / Maintenance</option>
+                                        <option value="damaged">تالف / Damaged</option>
+                                        <option value="disposed">مستبعد / Disposed</option>
+                                    </select>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">الموقع / Location</label>
+                                    <input type="text" class="form-control" id="editLocation">
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">تاريخ الشراء / Purchase Date</label>
+                                    <input type="date" class="form-control" id="editPurchaseDate">
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">سعر الشراء / Purchase Price</label>
+                                    <input type="number" step="0.01" class="form-control" id="editPurchasePrice" min="0">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">انتهاء الضمان / Warranty Expiry</label>
+                                    <input type="date" class="form-control" id="editWarrantyExpiry">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">الوصف / Description</label>
+                            <textarea class="form-control" id="editDescription" rows="3"></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="fas fa-times me-2"></i>إلغاء / Cancel
+                    </button>
+                    <button type="button" class="btn btn-warning" onclick="submitProductEdit()">
+                        <i class="fas fa-save me-2"></i>حفظ التغييرات / Save Changes
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- User View Modal -->
+    <div class="modal fade" id="userViewModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header bg-info text-white">
+                    <h5 class="modal-title">
+                        <i class="fas fa-eye me-2"></i>عرض المستخدم / View User
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="fw-bold">اسم المستخدم / Username:</label>
+                                <p id="viewUsername" class="mb-0">-</p>
+                            </div>
+                            <div class="mb-3">
+                                <label class="fw-bold">الاسم الكامل / Full Name:</label>
+                                <p id="viewFullName" class="mb-0">-</p>
+                            </div>
+                            <div class="mb-3">
+                                <label class="fw-bold">البريد الإلكتروني / Email:</label>
+                                <p id="viewEmail" class="mb-0">-</p>
+                            </div>
+                            <div class="mb-3">
+                                <label class="fw-bold">الهاتف / Phone:</label>
+                                <p id="viewPhone" class="mb-0">-</p>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="fw-bold">الدور / Role:</label>
+                                <p id="viewRole" class="mb-0">-</p>
+                            </div>
+                            <div class="mb-3">
+                                <label class="fw-bold">القسم / Department:</label>
+                                <p id="viewDepartment" class="mb-0">-</p>
+                            </div>
+                            <div class="mb-3">
+                                <label class="fw-bold">الحالة / Status:</label>
+                                <p id="viewStatus" class="mb-0">-</p>
+                            </div>
+                            <div class="mb-3">
+                                <label class="fw-bold">تاريخ الإنشاء / Created At:</label>
+                                <p id="viewCreatedAt" class="mb-0">-</p>
+                            </div>
+                            <div class="mb-3">
+                                <label class="fw-bold">آخر تحديث / Updated At:</label>
+                                <p id="viewUpdatedAt" class="mb-0">-</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="fas fa-times me-2"></i>إغلاق / Close
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- User Add Modal -->
+    <div class="modal fade" id="userAddModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header bg-success text-white">
+                    <h5 class="modal-title">
+                        <i class="fas fa-user-plus me-2"></i>إضافة مستخدم جديد / Add New User
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="userAddForm">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">اسم المستخدم / Username <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" id="addUsername" required>
+                                    <small class="text-muted">يجب أن يكون فريداً / Must be unique</small>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">كلمة المرور / Password <span class="text-danger">*</span></label>
+                                    <input type="password" class="form-control" id="addPassword" required minlength="6">
+                                    <small class="text-muted">6 أحرف على الأقل / At least 6 characters</small>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">الاسم الكامل / Full Name <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" id="addFullName" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">البريد الإلكتروني / Email</label>
+                                    <input type="email" class="form-control" id="addEmail">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">الهاتف / Phone</label>
+                                    <input type="tel" class="form-control" id="addPhone">
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">الدور / Role <span class="text-danger">*</span></label>
+                                    <select class="form-select" id="addRole" required>
+                                        <option value="employee">موظف / Employee</option>
+                                        <option value="admin">مدير / Admin</option>
+                                    </select>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">القسم / Department</label>
+                                    <input type="text" class="form-control" id="addDepartment">
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="fas fa-times me-2"></i>إلغاء / Cancel
+                    </button>
+                    <button type="button" class="btn btn-success" onclick="submitAddUser()">
+                        <i class="fas fa-save me-2"></i>إضافة المستخدم / Add User
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- User Edit Modal -->
+    <div class="modal fade" id="userEditModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header bg-warning text-dark">
+                    <h5 class="modal-title">
+                        <i class="fas fa-edit me-2"></i>تعديل المستخدم / Edit User
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="userEditForm">
+                        <input type="hidden" id="editUserId">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">اسم المستخدم / Username <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" id="editUsername" required readonly>
+                                    <small class="text-muted">لا يمكن تغيير اسم المستخدم / Username cannot be changed</small>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">الاسم الكامل / Full Name <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" id="editFullName" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">البريد الإلكتروني / Email</label>
+                                    <input type="email" class="form-control" id="editEmail">
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">الهاتف / Phone</label>
+                                    <input type="tel" class="form-control" id="editPhone">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">الدور / Role <span class="text-danger">*</span></label>
+                                    <select class="form-select" id="editRole" required>
+                                        <option value="employee">موظف / Employee</option>
+                                        <option value="admin">مدير / Admin</option>
+                                    </select>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">القسم / Department</label>
+                                    <input type="text" class="form-control" id="editDepartment">
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">الحالة / Status <span class="text-danger">*</span></label>
+                                    <select class="form-select" id="editIsActive" required>
+                                        <option value="1">نشط / Active</option>
+                                        <option value="0">غير نشط / Inactive</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="fas fa-times me-2"></i>إلغاء / Cancel
+                    </button>
+                    <button type="button" class="btn btn-warning" onclick="submitUserEdit()">
+                        <i class="fas fa-save me-2"></i>حفظ التغييرات / Save Changes
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification -->
+    <div id="notification" class="notification">
+        <div class="alert" id="notificationContent"></div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="text-center py-3 mt-5" style="background: var(--light-bg); border-top: 1px solid #ddd;">
+        <div class="container-fluid">
+            <p class="mb-0 text-muted">
+                <i class="fas fa-code me-2"></i>
+                مطور النظام: <strong>زهير حسون</strong> / 
+                System Developer: <strong>Zoheir Hassoun</strong>
+            </p>
+        </div>
+    </footer>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script src="js/admin.js"></script>
+</body>
+</html>

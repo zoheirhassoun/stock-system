@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>واجهة الموظفين | Employee Interface</title>
+    
+    <!-- Bootstrap CSS with RTL support -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.rtl.min.css" rel="stylesheet">
+    
+    <!-- Font Awesome Icons -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    
+    <!-- Google Fonts - Arabic Support -->
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700&display=swap" rel="stylesheet">
+    
+    <!-- QuaggaJS for Barcode Scanning -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/quagga/0.12.1/quagga.min.js"></script>
+    
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --success-color: #27ae60;
+            --warning-color: #f39c12;
+            --danger-color: #e74c3c;
+            --light-bg: #ecf0f1;
+            --dark-text: #2c3e50;
+        }
+
+        * {
+            font-family: 'Cairo', sans-serif;
+        }
+
+        body {
+            background: var(--light-bg);
+            min-height: 100vh;
+        }
+
+        .navbar {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .navbar-brand {
+            font-weight: 700;
+            font-size: 1.3rem;
+        }
+
+        .main-container {
+            padding: 20px 0;
+        }
+
+        .card {
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+            margin-bottom: 20px;
+        }
+
+        .card-header {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            color: white;
+            border-radius: 15px 15px 0 0 !important;
+            padding: 20px;
+            border: none;
+        }
+
+        .card-header h5 {
+            margin: 0;
+            font-weight: 600;
+        }
+
+        .card-body {
+            padding: 25px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            border: none;
+            border-radius: 10px;
+            padding: 12px 25px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(52, 152, 219, 0.4);
+        }
+
+        .btn-success {
+            background: var(--success-color);
+            border: none;
+            border-radius: 10px;
+            padding: 12px 25px;
+            font-weight: 600;
+        }
+
+        .btn-danger {
+            background: var(--danger-color);
+            border: none;
+            border-radius: 10px;
+            padding: 12px 25px;
+            font-weight: 600;
+        }
+
+        .form-control, .form-select {
+            border-radius: 10px;
+            border: 2px solid #e9ecef;
+            padding: 12px 15px;
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus, .form-select:focus {
+            border-color: var(--secondary-color);
+            box-shadow: 0 0 0 0.2rem rgba(52, 152, 219, 0.25);
+        }
+
+        .operation-card {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 15px;
+            border-right: 4px solid var(--secondary-color);
+            transition: all 0.3s ease;
+        }
+
+        .operation-card:hover {
+            transform: translateX(-5px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .operation-add {
+            border-right-color: var(--success-color);
+        }
+
+        .operation-remove {
+            border-right-color: var(--danger-color);
+        }
+
+        .status-badge {
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .status-pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .status-approved {
+            background: #d1edff;
+            color: #0c5460;
+        }
+
+        .status-rejected {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .scanner-container {
+            position: relative;
+            width: 100%;
+            max-width: 400px;
+            margin: 0 auto;
+            background: #000;
+            border-radius: 15px;
+            overflow: hidden;
+        }
+
+        #scanner {
+            width: 100%;
+            height: 300px;
+        }
+
+        .scanner-overlay {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 200px;
+            height: 100px;
+            border: 2px solid var(--success-color);
+            border-radius: 10px;
+            pointer-events: none;
+        }
+
+        .scanner-overlay::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            border: 2px solid var(--success-color);
+            border-radius: 10px;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+
+        .device-info {
+            background: var(--light-bg);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 15px 0;
+        }
+
+        .device-info h6 {
+            color: var(--primary-color);
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        .info-row:last-child {
+            border-bottom: none;
+        }
+
+        .info-label {
+            font-weight: 600;
+            color: var(--dark-text);
+        }
+
+        .info-value {
+            color: #6c757d;
+        }
+
+        .loading-spinner {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .alert {
+            border-radius: 10px;
+            border: none;
+            padding: 15px 20px;
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            right: 20px;
+            z-index: 1050;
+            display: none;
+        }
+
+        @media (max-width: 768px) {
+            .main-container {
+                padding: 10px;
+            }
+            
+            .card-body {
+                padding: 20px 15px;
+            }
+            
+            .scanner-container {
+                max-width: 100%;
+            }
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container">
+            <a class="navbar-brand" href="/">
+                <i class="fas fa-boxes me-2"></i>
+                نظام إدارة المخزون
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="#operations">العمليات</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#history">السجل</a>
+                    </li>
+                </ul>
+                <ul class="navbar-nav">
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-user me-2"></i>
+                            <span id="userName">الموظف</span>
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="#" onclick="changePassword()">
+                                <i class="fas fa-key me-2"></i>تغيير كلمة المرور
+                            </a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="#" onclick="logout()">
+                                <i class="fas fa-sign-out-alt me-2"></i>تسجيل الخروج
+                            </a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Container -->
+    <div class="container main-container">
+        <!-- Login Section -->
+        <div id="loginSection" class="row justify-content-center">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header text-center">
+                        <h5><i class="fas fa-sign-in-alt me-2"></i>تسجيل الدخول | Employee Login</h5>
+                    </div>
+                    <div class="card-body">
+                        <form id="loginForm">
+                            <div class="mb-3">
+                                <label class="form-label">اسم المستخدم / Username</label>
+                                <input type="text" class="form-control" id="username" required>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">كلمة المرور / Password</label>
+                                <input type="password" class="form-control" id="password" required>
+                            </div>
+                            <button type="submit" class="btn btn-primary w-100">
+                                <i class="fas fa-sign-in-alt me-2"></i>دخول / Login
+                            </button>
+                        </form>
+                        <div class="loading-spinner" id="loginLoading">
+                            <div class="spinner-border text-primary" role="status">
+                                <span class="visually-hidden">جاري التحميل...</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Application -->
+        <div id="appSection" class="hidden">
+            <!-- Operation Section -->
+            <div class="row">
+                <div class="col-lg-8">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5><i class="fas fa-barcode me-2"></i>مسح الرمز الشريطي | Barcode Scanner</h5>
+                        </div>
+                        <div class="card-body">
+                            <!-- Scanner -->
+                            <div class="text-center mb-4">
+                                <div class="scanner-container" id="scannerContainer" style="display: none;">
+                                    <div id="scanner"></div>
+                                    <div class="scanner-overlay"></div>
+                                </div>
+                                <div class="mb-3">
+                                    <button type="button" class="btn btn-primary me-2" onclick="startScanner()">
+                                        <i class="fas fa-camera me-2"></i>بدء المسح / Start Scan
+                                    </button>
+                                    <button type="button" class="btn btn-secondary" onclick="stopScanner()">
+                                        <i class="fas fa-stop me-2"></i>إيقاف / Stop
+                                    </button>
+                                </div>
+                                <div class="text-muted">
+                                    أو أدخل الرمز الشريطي يدوياً / Or enter barcode manually
+                                </div>
+                            </div>
+
+                            <!-- Manual Input -->
+                            <div class="row">
+                                <div class="col-md-8">
+                                    <input type="text" class="form-control" id="barcodeInput" 
+                                           placeholder="أدخل الرمز الشريطي / Enter barcode">
+                                </div>
+                                <div class="col-md-4">
+                                    <button type="button" class="btn btn-success w-100" onclick="searchDevice()">
+                                        <i class="fas fa-search me-2"></i>بحث / Search
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Device Information -->
+                            <div id="deviceInfo" class="device-info hidden">
+                                <h6><i class="fas fa-info-circle me-2"></i>معلومات المنتج / Product Information</h6>
+                                <div class="info-row">
+                                    <span class="info-label">الاسم / Name:</span>
+                                    <span class="info-value" id="deviceName">-</span>
+                                </div>
+                                <div class="info-row">
+                                    <span class="info-label">النوع / Type:</span>
+                                    <span class="info-value" id="deviceType">-</span>
+                                </div>
+                                <div class="info-row">
+                                    <span class="info-label">الماركة / Brand:</span>
+                                    <span class="info-value" id="deviceBrand">-</span>
+                                </div>
+                                <div class="info-row">
+                                    <span class="info-label">الكمية المتاحة / Available:</span>
+                                    <span class="info-value" id="deviceQuantity">-</span>
+                                </div>
+                            </div>
+
+                            <!-- Manual Stock Operations -->
+                            <div class="mb-3 mt-3">
+                                <div class="row g-2">
+                                    <div class="col-md-6">
+                                        <button type="button" class="btn btn-success w-100" onclick="showManualStockModal('add')">
+                                            <i class="fas fa-plus-circle me-2"></i>إضافة مخزون / Add Stock
+                                        </button>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <button type="button" class="btn btn-danger w-100" onclick="showManualStockModal('remove')">
+                                            <i class="fas fa-minus-circle me-2"></i>سحب مخزون / Remove Stock
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Operation Form -->
+                            <div id="operationForm" class="hidden">
+                                <hr>
+                                <h6><i class="fas fa-cogs me-2"></i>تفاصيل العملية / Operation Details</h6>
+                                <form id="inventoryForm">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <label class="form-label">نوع العملية / Operation Type</label>
+                                            <select class="form-select" id="operationType" required>
+                                                <option value="">اختر النوع / Select Type</option>
+                                                <option value="add">إضافة / Add</option>
+                                                <option value="remove">سحب / Remove</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label">الكمية / Quantity</label>
+                                            <input type="number" class="form-control" id="quantity" min="1" value="1" required>
+                                        </div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">السبب / Reason</label>
+                                        <input type="text" class="form-control" id="reason" 
+                                               placeholder="سبب العملية / Operation reason">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">ملاحظات / Notes</label>
+                                        <textarea class="form-control" id="notes" rows="3" 
+                                                  placeholder="ملاحظات إضافية / Additional notes"></textarea>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">الموقع / Location</label>
+                                        <input type="text" class="form-control" id="location" 
+                                               placeholder="موقع المنتج / Product location">
+                                    </div>
+                                    <button type="submit" class="btn btn-success w-100">
+                                        <i class="fas fa-check me-2"></i>تأكيد العملية / Confirm Operation
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Operations -->
+                <div class="col-lg-4">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5><i class="fas fa-history me-2"></i>العمليات الأخيرة | Recent Operations</h5>
+                        </div>
+                        <div class="card-body">
+                            <div id="recentOperations">
+                                <div class="text-center text-muted">
+                                    <i class="fas fa-inbox fa-2x mb-2"></i>
+                                    <p>لا توجد عمليات حديثة<br>No recent operations</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Manual Stock Operation Modal -->
+    <div class="modal fade" id="manualStockModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header" id="manualStockModalHeader">
+                    <h5 class="modal-title" id="manualStockModalTitle">
+                        <i class="fas fa-cog me-2"></i>
+                        عملية مخزون يدوي / Manual Stock Operation
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="manualStockForm">
+                        <div class="mb-3">
+                            <label class="form-label">البحث عن المنتج / Search Product</label>
+                            <div class="input-group">
+                                <input type="text" class="form-control" id="manualStockBarcode" 
+                                       placeholder="أدخل الرمز الشريطي أو اسم المنتج / Enter barcode or product name">
+                                <button type="button" class="btn btn-primary" onclick="searchDeviceForManualStock()">
+                                    <i class="fas fa-search"></i>
+                                </button>
+                            </div>
+                            <small class="text-muted">أو اختر من القائمة أدناه / Or select from list below</small>
+                        </div>
+                        <div class="mb-3" id="manualStockDeviceSelect" style="display: none;">
+                            <label class="form-label">اختر الجهاز / Select Device</label>
+                            <select class="form-select" id="manualStockDeviceId">
+                                <option value="">اختر جهاز / Select device</option>
+                            </select>
+                        </div>
+                        <div id="manualStockDeviceInfo" class="alert alert-info" style="display: none;">
+                            <strong id="manualStockDeviceName">-</strong><br>
+                            <small id="manualStockDeviceDetails">-</small>
+                        </div>
+                        <div id="manualStockAvailableInfo" class="alert alert-warning" style="display: none;">
+                            <i class="fas fa-info-circle me-2"></i>
+                            <strong>الكمية المتاحة / Available Quantity:</strong> <span id="manualStockAvailableQty">-</span>
+                        </div>
+                        <div id="showAddDeviceForm" class="alert alert-warning" style="display: none;">
+                            <i class="fas fa-exclamation-triangle me-2"></i>
+                            <strong>الجهاز غير موجود / Device not found</strong><br>
+                            <small>يمكنك إضافة الجهاز أدناه ثم إضافة المخزون / You can add the device below then add stock</small>
+                        </div>
+                        <div id="addDeviceForm" style="display: none;">
+                            <hr>
+                            <h6><i class="fas fa-plus me-2"></i>إضافة جهاز جديد / Add New Device</h6>
+                            <div class="mb-3">
+                                <label class="form-label">اسم الجهاز / Device Name <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="newDeviceName" required>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">نوع الجهاز / Device Type <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="newDeviceType" required 
+                                       placeholder="مثال: هاتف، لابتوب / Example: Phone, Laptop">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">الماركة / Brand</label>
+                                <input type="text" class="form-control" id="newDeviceBrand">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">الموديل / Model</label>
+                                <input type="text" class="form-control" id="newDeviceModel">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">الموقع / Location</label>
+                                <input type="text" class="form-control" id="newDeviceLocation">
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">الكمية / Quantity</label>
+                            <input type="number" class="form-control" id="manualStockQuantity" 
+                                   min="1" value="1" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">السبب / Reason</label>
+                            <input type="text" class="form-control" id="manualStockReason" 
+                                   placeholder="سبب إضافة المخزون / Reason for adding stock">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">ملاحظات / Notes</label>
+                            <textarea class="form-control" id="manualStockNotes" rows="3" 
+                                      placeholder="ملاحظات إضافية / Additional notes"></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">الموقع / Location</label>
+                            <input type="text" class="form-control" id="manualStockLocation" 
+                                   placeholder="موقع المخزون / Stock location">
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="fas fa-times me-2"></i>إلغاء / Cancel
+                    </button>
+                    <button type="button" class="btn btn-success" id="manualStockSubmitBtn" onclick="submitManualStock()">
+                        <i class="fas fa-check me-2"></i>تأكيد / Confirm
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification -->
+    <div id="notification" class="notification">
+        <div class="alert" id="notificationContent"></div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="text-center py-3 mt-5" style="background: var(--light-bg); border-top: 1px solid #ddd;">
+        <div class="container-fluid">
+            <p class="mb-0 text-muted">
+                <i class="fas fa-code me-2"></i>
+                مطور النظام: <strong>زهير حسون</strong> / 
+                System Developer: <strong>Zoheir Hassoun</strong>
+            </p>
+        </div>
+    </footer>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script src="js/employee.js"></script>
+</body>
+</html>

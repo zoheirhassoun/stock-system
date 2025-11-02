@@ -1,0 +1,20 @@
+services:
+  - type: web
+    name: inventory-system
+    env: node
+    region: frankfurt
+    plan: free
+    buildCommand: npm install && npm run setup-db
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      - key: JWT_SECRET
+        generateValue: true
+      - key: ALLOWED_ORIGINS
+        value: https://inventory-system.onrender.com
+        # ⚠️ مهم: بعد النشر، حدّث هذا بالقيمة الفعلية للتطبيق في Render Dashboard
+        # ⚠️ Important: After deployment, update this with actual app URL in Render Dashboard
+
