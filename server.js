@@ -80,6 +80,13 @@ const limiter = rateLimit({
             req.path.endsWith('.ttf')) {
             return true;
         }
+        
+        // تخطي health check endpoint
+        // Skip health check endpoint
+        if (req.path === '/health') {
+            return true;
+        }
+        
         return false;
     }
 });
@@ -150,6 +157,15 @@ app.get('/employee', (req, res) => {
 // Admin page
 app.get('/admin', (req, res) => {
     res.sendFile(path.join(__dirname, 'frontend', 'admin', 'index.html'));
+});
+
+// Health check endpoint for keep-alive pings
+app.get('/health', (req, res) => {
+    res.status(200).json({
+        status: 'ok',
+        timestamp: new Date().toISOString(),
+        uptime: process.uptime()
+    });
 });
 
 // معالجة الأخطاء 404

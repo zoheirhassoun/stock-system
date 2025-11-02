@@ -88,6 +88,37 @@ ALLOWED_ORIGINS=https://your-app-name.onrender.com,https://custom-domain.com
 - أول طلب بعد الإيقاف: 30-60 ثانية
 - هذا طبيعي في الخطة المجانية
 
+### 1.1 إعداد Keep-Alive (منع الإيقاف التلقائي):
+**لجعل التطبيق يعمل 24/7 بدون إيقاف:**
+
+#### خيار 1: استخدام Uptime Robot (موصى به / Recommended)
+1. اذهب إلى [uptimerobot.com](https://uptimerobot.com) وأنشئ حساب مجاني
+2. انقر على "Add New Monitor"
+3. املأ البيانات:
+   - **Monitor Type:** HTTP(s)
+   - **Friendly Name:** Inventory System Keep-Alive
+   - **URL:** `https://your-app-name.onrender.com/health`
+   - **Monitoring Interval:** 5 minutes (أو 5 دقائق)
+4. انقر "Create Monitor"
+5. ✅ التطبيق سيبقى نشطاً 24/7
+
+#### خيار 2: استخدام cron-job.org
+1. اذهب إلى [cron-job.org](https://cron-job.org)
+2. سجل دخول وأضف مهمة جديدة
+3. املأ:
+   - **URL:** `https://your-app-name.onrender.com/health`
+   - **Schedule:** Every 5 minutes (كل 5 دقائق)
+4. احفظ المهمة
+
+#### خيار 3: خدمات Keep-Alive أخرى:
+- **cronitor.io** - مجاني حتى 10 monitors
+- **pingdom.com** - خيارات مجانية محدودة
+- **StatusCake** - خطة مجانية متاحة
+
+**ملاحظة:** استخدم endpoint `/health` المخصص لهذا الغرض بدلاً من الصفحة الرئيسية لتقليل الحمل.
+
+**Note:** Use the dedicated `/health` endpoint instead of homepage to reduce load.
+
 ### 2. قاعدة البيانات:
 - ⚠️ **مهم جداً:** SQLite على Render Free Tier - البيانات ستُفقد عند كل إعادة تشغيل!
 - ⚠️ **Critical:** SQLite on Render Free Tier - data will be lost on every restart!
